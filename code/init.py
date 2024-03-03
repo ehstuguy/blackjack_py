@@ -75,21 +75,18 @@ if __name__ == "__main__":
     # print(player1.hand)
 
 
-    # # Example of how to loop over dealing cards
-    print(shoe.cards[0:6])
-    print(player1.hand)
+    # # # Example of how to loop over dealing cards
+    # print(shoe.cards[0:6])
+    # player1.hand = player1.hand + [shoe.cards[0]]
+    # shoe.cards.remove(shoe.cards[0])
+    # print(player1.hand)
+    
+    # print(shoe.cards[0:6])
+    # player1.hand = player1.hand + [shoe.cards[0]]
+    # shoe.cards.remove(shoe.cards[0])
+    # print(player1.hand)
 
-    player1.hand = player1.hand.append(shoe.cards[0])
-    shoe.cards.remove(shoe.cards[0])
-    print(shoe.cards[0:6])
-    print(player1.hand)
-
-    player1.hand = player1.hand.append(shoe.cards[0])
-    shoe.cards.remove(shoe.cards[0])
-    print(shoe.cards[0:6])
-    print(player1.hand)
-
-    player1.hand = player1.hand.append(shoe.cards[0])
-    shoe.cards.remove(shoe.cards[0])
-    print(shoe.cards[0:6])
-    print(player1.hand)
+    # print(shoe.cards[0:6])
+    # player1.hand = player1.hand + [shoe.cards[0]]
+    # shoe.cards.remove(shoe.cards[0])
+    # print(player1.hand)
