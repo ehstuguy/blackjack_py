@@ -21,15 +21,16 @@ alt_dict ={
     "A": 1
 }
 
+
 class shoe_obj:
     def __init__(self, n_decks):
         """initialize"""
-        self.deck(n_decks)
-        self.plcd = 312
+        self.__deck__(n_decks)
+        self.cut = 312
         self.reshuffle = False
 
 
-    def deck(self, n_decks):
+    def __deck__(self, n_decks):
         """assemble deck of cards"""
         suits = ["♠", "♥", "♦", "♣"]
         vals = [i for i in range(2, 11)] + ["J", "Q", "K", "A"]
@@ -38,9 +39,9 @@ class shoe_obj:
         self.cards = random.sample(cards, k=len(cards))
 
 
-    def cut(self):
+    def __cut__(self):
         """method used to cut the deck"""
-        self.plcd = random.randint(1, 257)  # plastic card used to cut the decks in the shoe
+        self.cut = random.randint(1, 257)  # plastic card used to cut the decks in the shoe
 
   
 class table_obj:
@@ -54,12 +55,26 @@ class player_obj:
         self.hand = []
 
 
-    def bet(self, amt):
-        pass
+    def __bet__(self, amt):
+        self.bet = amt
 
 
-    def deal(self):
-        pass
+    def __options__(self, player_hand):
+        """Check options player has to do"""
+        self.options = {}
+        self.options["Hit"] = True
+        self.options["Stand"] = True
+        self.options["Surrender"] = True
+        # Split Logic ================================
+        if player_hand[0][1] == player_hand[1][1]:
+            self.options["Split"] = True
+        else:
+            self.options["Split"] = False
+        # Double-Down Logic ==========================
+        if self.bankroll > self.bet:
+            self.options["Double"] = True
+        else:
+            self.options["Double"] = False
 
 
 class dealer_obj:
@@ -68,14 +83,19 @@ class dealer_obj:
 
 
 if __name__ == "__main__":
+    # # General Shoe Tests
     shoe = shoe_obj(n_decks=6)
-    # print(shoe.cards[0][1])
+    # shoe.__cut__()
+    # print(shoe.cards[10])
+    # print(shoe.cut)
 
+    # # General Player Tests
     player1 = player_obj(10000)
-    # print(player1.hand)
-
-
-    # # # Example of how to loop over dealing cards
+    # player1.__bet__(50)
+    # player1.__options__([('♥', 4), ('♠', 4)])
+    # print(player1.options)
+    
+    # # Example How to Deal Cards - While() Loop This
     # print(shoe.cards[0:6])
     # player1.hand = player1.hand + [shoe.cards[0]]
     # shoe.cards.remove(shoe.cards[0])
