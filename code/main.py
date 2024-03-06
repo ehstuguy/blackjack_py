@@ -12,6 +12,7 @@ valDict = {
 
 altDict = valDict.copy()
 altDict["A"] = 1
+playAgain = ["y", "yes", "yeah", "sure", "Y", "Yes", "Yeah", "Sure", True, "true"]
 
 
 class shoeObj:
@@ -34,24 +35,15 @@ class shoeObj:
         """method used to cut the deck"""
         self.cut = random.randint(1, 257)  # plastic card used to cut the decks in the shoe
 
-  
-class tableObj:
-    def __init__(self):
-        self.seats = 7
-
 
 class playerObj:
     def __init__(self, moneyVal):
         self.bankroll = moneyVal
-        self.__bet__(0)
-        self.hand = []  
+        self.bet = 0
+        self.stand = False
 
 
-    def __bet__(self, amt):
-        self.bet = amt
-
-
-    def __eval__(self, playerHand):
+    def evalHand(self, handId, playerHand):
         """Evaluate the player's hand for value and possible moves"""
         self.eval = {}
         self.eval["Hit"] = True
@@ -68,156 +60,140 @@ class playerObj:
                 self.eval["Double"] = True
             else:
                 self.eval["Double"] = False
+        self.hand[handId]["options"] = self.eval
+        self.eval = {}
 
 
-    def __checkPlayer__(self, evalHand):
-        """Given a hand, this method returns the hand value"""
-        cardSymb = [i[1] for i in evalHand]  # remove suits for calcs
-        cardVals = [valDict[i] for i in cardSymb]
-        # check for naturals
-        if len(cardSymb) == 2:
-            # 2 cards in hand
-            handVal = sum(cardVals)
-            if handVal == 21:
-                choice = "a.1.0  || "
-                # print(choice, handVal, "Blackjack!!")
-                return handVal, "Blackjack!!"
-            else:
-                choice = "a.2.0  || "
-                # print(choice, handVal)
-                return handVal, None
-        elif len(cardSymb) > 2 and "A" not in cardSymb:
-            # No Aces, 3 or more cards in hand
-            handVal = sum(cardVals)
-            if handVal == 21:
-                choice = "b.1.0  || "
-                # print(choice, handVal, "21!")
-                return handVal, "21!"
-            elif handVal < 21:
-                choice = "b.2.0  || "
-                print(choice, handVal)
-                return handVal, None
-            else:
-                choice = "b.3.0  || "
-                # print(choice, handVal, "Bust!")
-                return handVal, "Bust!"
-        else:
-            # Aces, 3 or more cards in hand
-            handVal = sum(cardVals)
-            if handVal == 21:
-                choice = "c.1.0  || "
-                # print(choice, handVal, "21!")
-                return handVal, "21!"
-            elif  handVal < 21:
-                choice = "c.2.0  || "
-                # print(choice, handVal)
-                return handVal, None
-            else:
-                newHandVal = sum([altDict[i] for i in cardSymb])
-                if newHandVal == 21:
-                    choice = "c.3.1  || "
-                    # print(choice, newHandVal, "21!")
-                    return newHandVal, "21!"
-                elif newHandVal < 21:
-                    choice = "c.3.2  || "
-                    # print(choice, newHandVal)
-                    return newHandVal, None
-                else:
-                    choice = "c.3.3  || "
-                    # print(choice, newHandVal, "Bust!")
-                    return newHandVal, "Bust!"                
-
-
-class dealer_obj:
+class dealerObj:
     def __init__(self):
-        self.hand = []
+        self.hand = {}
 
     
-    def __checkDealer__(self, evalHand):
-        """Given a hand, this method returns the hand value"""
-        cardSymb = [i[1] for i in evalHand]  # remove suits for calcs
-        cardVals = [valDict[i] for i in cardSymb]
-        if "A" in cardSymb and len(cardSymb) == 2:
-            handVal = sum(cardVals)
-            if handVal == 21:
-                choice = "Da.1  || "
-                print(choice, handVal, "Blackjack!!")
-            else:
-                choice = "Da.2  || "
-                print(choice, handVal)
-        elif len(cardSymb) > 2 and "A" not in cardSymb:
-            # No Aces, 3 or more cards in hand
-            handVal = sum(cardVals)
-            if handVal == 21:
-                choice = "Db.1.0  || "
-                # print(choice, handVal, "21!")
-                return handVal, "21!"
-            elif handVal < 21:
-                choice = "Db.2.0  || "
-                print(choice, handVal)
-                return handVal, None
-            else:
-                choice = "Db.3.0  || "
-                # print(choice, handVal, "Bust!")
-                return handVal, "Bust!"
+def checkHand(hand):
+    """Given a hand, this method returns the hand value"""
+    cardSymb = [i[1] for i in hand]  # remove suits for calcs
+    cardVals = [valDict[i] for i in cardSymb]
+    # check for naturals
+    if len(cardSymb) == 2:
+        handVal = sum(cardVals)
+        if handVal == 21:
+            choice = "a.1.0 "
+            return handVal, (choice, "Blackjack!!")
         else:
-            # Aces, 3 or more cards in hand
-            handVal = sum(cardVals)
-            if handVal == 21:
-                choice = "Dc.1.0  || "
-                # print(choice, handVal, "21!")
-                return handVal, "21!"
-            elif  handVal < 21:
-                choice = "Dc.2.0  || "
-                # print(choice, handVal)
-                return handVal, None
+            choice = "a.2.0"
+            return handVal, (choice, None)
+    elif len(cardSymb) > 2 and "A" not in cardSymb:
+        # No Aces, 3 or more cards in hand
+        handVal = sum(cardVals)
+        if handVal == 21:
+            choice = "b.1.0"
+            return handVal, (choice, "21!")
+        elif handVal < 21:
+            choice = "b.2.0"
+            return handVal, (choice, None)
+        else:
+            choice = "b.3.0"
+            return handVal, (choice, "Bust!")
+    else:
+        # Aces, 3 or more cards in hand
+        handVal = sum(cardVals)
+        if handVal == 21:
+            choice = "c.1.0"
+            return handVal, (choice, "21!")
+        elif  handVal < 21:
+            choice = "c.2.0"
+            return handVal, (choice, None)
+        else:
+            newHandVal = sum([altDict[i] for i in cardSymb])
+            if newHandVal == 21:
+                choice = "c.3.1"
+                return newHandVal, (choice, "21!")
+            elif newHandVal < 21:
+                choice = "c.3.2"
+                return newHandVal, (choice, None)
             else:
-                newHandVal = sum([altDict[i] for i in cardSymb])
-                if newHandVal == 21:
-                    choice = "Dc.3.1  || "
-                    # print(choice, newHandVal, "21!")
-                    return newHandVal, "21!"
-                elif newHandVal < 21:
-                    choice = "Dc.3.2  || "
-                    # print(choice, newHandVal)
-                    return newHandVal, None
-                else:
-                    choice = "Dc.3.3  || "
-                    # print(choice, newHandVal, "Bust!")
-                    return newHandVal, "Bust!"                
+                choice = "c.3.3"
+                return newHandVal, (choice, "Bust!")
+
+
+def dealCard(tableSeats, dealType):
+    # check if there needs to be a reshuffle
+    if 312-len(shoe.cards) < shoe.cut:
+        shoe.reshuffle = True
+    else:
+        pass
+
+    if dealType == "Deal":
+        # deal first set of cards
+        for player in tableSeats:
+            player.hand = [shoe.cards[0]]
+            del shoe.cards[0]
+
+        for player in tableSeats:
+            player.hand += [shoe.cards[0]]
+            del shoe.cards[0]
+    
+    elif dealType == "Split":
+        pass
+
+    else:
+        # Assuming this is just hit
+        pass
+
 
 
 if __name__ == "__main__":
-    # # General Shoe Tests
-    shoe = shoeObj(nDecks=6)
-    # shoe.__cut__()
-    # print(shoe.cards[10])
-    # print(shoe.cut)
-
-    # # General Player Tests
-    player1 = playerObj(90)
-    player1.__bet__(50)
-    
-    print(player1.bet)
-    mock_hand = [('♠', 9), ('♠', 8)]
-    player1.__eval__(mock_hand)
-    print(player1.__checkPlayer__(mock_hand))
-
-
     # =====================================================
+    # # mock game
+    shoe = shoeObj(nDecks=6)
+    shoe.__cut__()
 
-    # # Example How to Deal Cards - While() Loop This
-    # print(shoe.cards[0:6])
-    # player1.hand = player1.hand + [shoe.cards[0]]
-    # shoe.cards.remove(shoe.cards[0])
-    # print(player1.hand)
+    # players at the table
+    npcs = 0  # NPCs
+    plr = playerObj(1000)
+    dlr = dealerObj()
+
+
+    # simple loop
+    while plr.stand == False:
+        tableSeats = [plr, dlr]
+        dealCard(tableSeats, "Deal")
+
+        for player in tableSeats:
+            player.handVal = checkHand(player.hand)
+
+
+        print(plr.handVal[0], dlr.handVal[0])
     
-    # print(shoe.cards[0:6])
-    # player1.hand = player1.hand + [shoe.cards[0]]
-    # shoe.cards.remove(shoe.cards[0])
-    # print(player1.hand)
+        if plr.handVal[0] > dlr.handVal[0]:
+            print(f"player wins! {plr.handVal[0]} > {dlr.handVal[0]}")
+        elif checkHand(plr.hand) > checkHand(dlr.hand):
+            print(f"tie! {plr.handVal[0]} = {dlr.handVal[0]}")
+        else:
+            print(f"player loses! {plr.handVal[0]} < {dlr.handVal[0]}")
 
-    # print(shoe.cards[0:6])
-    # player1.hand = player1.hand + [shoe.cards[0]]
-    # shoe.cards.remove(shoe.cards[0])
-    # print(player1.hand)
+        response = input("Give me an input [y/n]: ")
+        if response in playAgain:
+            print("Another!")
+        else:
+            print("You sure you don't want to play again?")
+            exit()
+
+    #     exit()
+        # deal cards
+
+    
+    # =====================================================
+    # # General Shoe Tests
+
+
+    # p1.hand[len(p1.hand)] = {'deal': [shoe.cards[2], shoe.cards[3]]}
+    # p1.hand[0]["value"] = checkHand(p1.hand[0]["deal"])
+    # p1.evalHand(0, p1.hand[0]["deal"])
+    # print(p1.hand)
+
+    # p1.hand.pop(0)
+    # print(p1.hand)
+    
+
+    pass
