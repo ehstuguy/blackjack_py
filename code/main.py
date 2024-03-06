@@ -54,7 +54,6 @@ class playerObj:
     def __eval__(self, playerHand):
         """Evaluate the player's hand for value and possible moves"""
         self.eval = {}
-        self.eval["hand_val"] = self.__checkVal__(playerHand)
         self.eval["Hit"] = True
         self.eval["Stand"] = True
         self.eval["Surrender"] = True
@@ -70,8 +69,8 @@ class playerObj:
             else:
                 self.eval["Double"] = False
 
-    
-    def __checkVal__(self, evalHand):
+
+    def __checkPlayer__(self, evalHand):
         """Given a hand, this method returns the hand value"""
         cardSymb = [i[1] for i in evalHand]  # remove suits for calcs
         cardVals = [valDict[i] for i in cardSymb]
@@ -124,7 +123,7 @@ class playerObj:
                     # print(choice, newHandVal)
                     return newHandVal, None
                 else:
-                    choice = "b.3.3  || "
+                    choice = "c.3.3  || "
                     # print(choice, newHandVal, "Bust!")
                     return newHandVal, "Bust!"                
 
@@ -146,6 +145,46 @@ class dealer_obj:
             else:
                 choice = "Da.2  || "
                 print(choice, handVal)
+        elif len(cardSymb) > 2 and "A" not in cardSymb:
+            # No Aces, 3 or more cards in hand
+            handVal = sum(cardVals)
+            if handVal == 21:
+                choice = "Db.1.0  || "
+                # print(choice, handVal, "21!")
+                return handVal, "21!"
+            elif handVal < 21:
+                choice = "Db.2.0  || "
+                print(choice, handVal)
+                return handVal, None
+            else:
+                choice = "Db.3.0  || "
+                # print(choice, handVal, "Bust!")
+                return handVal, "Bust!"
+        else:
+            # Aces, 3 or more cards in hand
+            handVal = sum(cardVals)
+            if handVal == 21:
+                choice = "Dc.1.0  || "
+                # print(choice, handVal, "21!")
+                return handVal, "21!"
+            elif  handVal < 21:
+                choice = "Dc.2.0  || "
+                # print(choice, handVal)
+                return handVal, None
+            else:
+                newHandVal = sum([altDict[i] for i in cardSymb])
+                if newHandVal == 21:
+                    choice = "Dc.3.1  || "
+                    # print(choice, newHandVal, "21!")
+                    return newHandVal, "21!"
+                elif newHandVal < 21:
+                    choice = "Dc.3.2  || "
+                    # print(choice, newHandVal)
+                    return newHandVal, None
+                else:
+                    choice = "Dc.3.3  || "
+                    # print(choice, newHandVal, "Bust!")
+                    return newHandVal, "Bust!"                
 
 
 if __name__ == "__main__":
@@ -158,10 +197,12 @@ if __name__ == "__main__":
     # # General Player Tests
     player1 = playerObj(90)
     player1.__bet__(50)
+    
     print(player1.bet)
-    player1.__eval__([('♠', 9), ('♠', 8)])
-    print(player1.eval)
-    print(player1.hand)
+    mock_hand = [('♠', 9), ('♠', 8)]
+    player1.__eval__(mock_hand)
+    print(player1.__checkPlayer__(mock_hand))
+
 
     # =====================================================
 
