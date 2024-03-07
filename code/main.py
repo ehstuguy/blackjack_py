@@ -15,60 +15,87 @@ altDict["A"] = 1
 playAgain = ["y", "yes", "yeah", "sure", "Y", "Yes", "Yeah", "Sure", True, "true"]
 
 
+class cardObj:
+
+    def __init__(self, cardInfo):
+        """Reference card suit or val at any point"""
+        self.info = cardInfo
+        self.suit = cardInfo[0]
+        self.val = cardInfo[1]
+
+
 class shoeObj:
+
     def __init__(self, nDecks):
-        """Put 6 decks in the shoe"""
-        self.__deck__(nDecks)
-        self.cut = 312
+        """Input a number of decks for the shoe"""
+        self.makeShoe(nDecks)
         self.reshuffle = False
 
 
-    def __deck__(self, nDecks):
-        """assemble deck of cards"""
+    def makeShoe(self, nDecks):
+        """Input a number of decks for the shoe"""
         suits = ["♠", "♥", "♦", "♣"]
         vals = [i for i in range(2, 11)] + ["J", "Q", "K", "A"]
         cards = list(prod(suits, vals)) * nDecks
-        self.cards = random.sample(cards, k=len(cards))
+        shuffledCards = random.sample(cards, k=len(cards))
+        self.cards = [cardObj(hldr) for hldr in shuffledCards]
 
 
-    def __cut__(self):
-        """method used to cut the deck"""
-        self.cut = random.randint(1, 257)  # plastic card used to cut the decks in the shoe
+    def cutDeck(self):
+        """Method used to cut the deck"""
+        self.cut = random.randint(1, 263)
 
 
 class playerObj:
-    def __init__(self, moneyVal):
-        self.bankroll = moneyVal
-        self.bet = 0
-        self.stand = False
 
-
-    def evalHand(self, handId, playerHand):
-        """Evaluate the player's hand for value and possible moves"""
-        self.eval = {}
-        self.eval["Hit"] = True
-        self.eval["Stand"] = True
-        self.eval["Surrender"] = True
-        if len(playerHand) == 2:
-            # Split Logic
-            if playerHand[0][1] == playerHand[1][1]:
-                self.eval["Split"] = True
-            else:
-                self.eval["Split"] = False
-            # Double-Down Logic
-            if self.bankroll-self.bet >= self.bet:
-                self.eval["Double"] = True
-            else:
-                self.eval["Double"] = False
-        self.hand[handId]["options"] = self.eval
-        self.eval = {}
+    def __init__(self, bankroll, playerNum, bet):
+        """Starting dollar amount"""
+        self.hands = {}
+        self.name = f"Player{playerNum}"
+        self.bankroll = bankroll
+        self.bet = bet
 
 
 class dealerObj:
-    def __init__(self):
-        self.hand = {}
-
     
+    def __init__(self):
+        self.hands = {}
+        self.name = "Dealer"
+
+
+class hand:
+
+    def __init__(self, newHand):
+        """Cards that are initially dealt to player"""
+        self.hand = newHand
+        self.evalHand(newHand)
+        pass
+        
+
+    def evalHand(self, hand):
+        """Evaluate the player's hand for value and possible moves"""
+        self.options = {}
+        self.options["Hit"] = True
+        self.options["Stand"] = True
+        self.options["Surrender"] = True
+        if len(hand) == 2:
+            # # Split Logic
+            # if hand[0].val == hand[1].val:
+            #     self.options["Split"] = True
+            # else:
+            #     self.options["Split"] = False
+            # # Double-Down Logic
+            # if self.bankroll-self.bet >= self.bet:
+            #     self.options["Double"] = True
+            # else:
+            #     self.options["Double"] = False
+            # # Check for naturals
+            if sum([valDict[hand[0].val], valDict[hand[1].val]]) == 21:
+                self.natural = True
+            else:
+                self.natural = False
+
+
 def checkHand(hand):
     """Given a hand, this method returns the hand value"""
     cardSymb = [i[1] for i in hand]  # remove suits for calcs
@@ -116,84 +143,6 @@ def checkHand(hand):
                 return newHandVal, (choice, "Bust!")
 
 
-def dealCard(tableSeats, dealType):
-    # check if there needs to be a reshuffle
-    if 312-len(shoe.cards) < shoe.cut:
-        shoe.reshuffle = True
-    else:
-        pass
-
-    if dealType == "Deal":
-        # deal first set of cards
-        for player in tableSeats:
-            player.hand = [shoe.cards[0]]
-            del shoe.cards[0]
-
-        for player in tableSeats:
-            player.hand += [shoe.cards[0]]
-            del shoe.cards[0]
-    
-    elif dealType == "Split":
-        pass
-
-    else:
-        # Assuming this is just hit
-        pass
-
-
-
 if __name__ == "__main__":
-    # =====================================================
-    # # mock game
-    shoe = shoeObj(nDecks=6)
-    shoe.__cut__()
-
-    # players at the table
-    npcs = 0  # NPCs
-    plr = playerObj(1000)
-    dlr = dealerObj()
-
-
-    # simple loop
-    while plr.stand == False:
-        tableSeats = [plr, dlr]
-        dealCard(tableSeats, "Deal")
-
-        for player in tableSeats:
-            player.handVal = checkHand(player.hand)
-
-
-        print(plr.handVal[0], dlr.handVal[0])
-    
-        if plr.handVal[0] > dlr.handVal[0]:
-            print(f"player wins! {plr.handVal[0]} > {dlr.handVal[0]}")
-        elif checkHand(plr.hand) > checkHand(dlr.hand):
-            print(f"tie! {plr.handVal[0]} = {dlr.handVal[0]}")
-        else:
-            print(f"player loses! {plr.handVal[0]} < {dlr.handVal[0]}")
-
-        response = input("Give me an input [y/n]: ")
-        if response in playAgain:
-            print("Another!")
-        else:
-            print("You sure you don't want to play again?")
-            exit()
-
-    #     exit()
-        # deal cards
-
-    
-    # =====================================================
-    # # General Shoe Tests
-
-
-    # p1.hand[len(p1.hand)] = {'deal': [shoe.cards[2], shoe.cards[3]]}
-    # p1.hand[0]["value"] = checkHand(p1.hand[0]["deal"])
-    # p1.evalHand(0, p1.hand[0]["deal"])
-    # print(p1.hand)
-
-    # p1.hand.pop(0)
-    # print(p1.hand)
-    
-
-    pass
+    # for now, just 1 playable character and the NPC Dealer
+    players = [playerObj(1, 1000, 50), dealerObj()]
