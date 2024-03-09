@@ -1,0 +1,47 @@
+
+
+def checkHand(hand):
+    """Given a hand, this method returns the hand value"""
+    cardSymb = [i[1] for i in hand]  # remove suits for calcs
+    cardVals = [valDict[i] for i in cardSymb]
+    # check for naturals
+    if len(cardSymb) == 2:
+        handVal = sum(cardVals)
+        if handVal == 21:
+            choice = "a.1.0 "
+            return handVal, (choice, "Blackjack!!")
+        else:
+            choice = "a.2.0"
+            return handVal, (choice, None)
+    elif len(cardSymb) > 2 and "A" not in cardSymb:
+        # No Aces, 3 or more cards in hand
+        handVal = sum(cardVals)
+        if handVal == 21:
+            choice = "b.1.0"
+            return handVal, (choice, "21!")
+        elif handVal < 21:
+            choice = "b.2.0"
+            return handVal, (choice, None)
+        else:
+            choice = "b.3.0"
+            return handVal, (choice, "Bust!")
+    else:
+        # Aces, 3 or more cards in hand
+        handVal = sum(cardVals)
+        if handVal == 21:
+            choice = "c.1.0"
+            return handVal, (choice, "21!")
+        elif  handVal < 21:
+            choice = "c.2.0"
+            return handVal, (choice, None)
+        else:
+            newHandVal = sum([altDict[i] for i in cardSymb])
+            if newHandVal == 21:
+                choice = "c.3.1"
+                return newHandVal, (choice, "21!")
+            elif newHandVal < 21:
+                choice = "c.3.2"
+                return newHandVal, (choice, None)
+            else:
+                choice = "c.3.3"
+                return newHandVal, (choice, "Bust!")
