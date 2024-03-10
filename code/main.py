@@ -54,10 +54,10 @@ class Player:
 
     def __init__(self, bankroll, playerNum):
         """Starting dollar amount and player number"""
-        self.hand = {}
         self.info = {"Name": f"Player{playerNum}"}
-        self.dealtHand = []
         self.info["Bankroll"] = bankroll
+        self.dealtHand = []
+        self.hand = []
 
 
     def addBet(self, betAmt):
@@ -67,15 +67,16 @@ class Player:
 class Dealer:
 
     def __init__(self):
-        self.hand = {}
         self.info = {"Name": "Dealer"}
         self.dealtHand = []
+        self.hand = []
 
 
 class hand:
 
     def __init__(self, nHand, playerInfo):
         """Cards that are initially dealt to player"""
+        self.cHand = nHand
         self.cInfo = [n.cInfo for n in nHand]
         self.cVal = [n.val for n in nHand]
         self.cSum = sum(valDict[n.val] for n in nHand)
@@ -127,6 +128,11 @@ def decision(playerInput, choices, incompetent=0):
         playerInput = input(f"{retry}{choices}\n")
 
 
+class tempObj:
+    def __init__(self):
+        self.handSize = [1]
+
+
 if __name__ == "__main__":
     # for now, just 1 playable character
     shoe = shoe(6)
@@ -134,63 +140,47 @@ if __name__ == "__main__":
     player.addBet(50)
     dealer = Dealer()
 
-
     # deal out cards based on seats at table
     tableList = [player, dealer]
     playerList = [player]
-    for plr in 2 * tableList:
-        plr.dealtHand += [shoe.cards[0]]
-        del shoe.cards[0]
 
+    playerCards = [card(("♥", 7)), card(("♦", 7))]
+    player.hand.append(hand(playerCards, player.info))
 
-    # Evaluate the hands of player(s) and dealer
-    for plr in tableList:
-        plr.hand[0] = hand(plr.dealtHand, plr.info)
-        if plr.info["Name"] == "Dealer":
-            print(plr.info["Name"], [plr.hand[0].cInfo[0], ('?', '?')])
-        else:
-            print(plr.info["Name"], plr.hand[0].cInfo)
+    dealerCards = [card(("♥", 10)), card(("♦", 7))]
+    dealer.hand.append(hand(dealerCards, dealer.info))
 
+    # # deal out cards based on seats at table ======================
+    # for plr in 2 * tableList:
+    #     plr.dealtHand += [shoe.cards[0]]
+    #     del shoe.cards[0]
 
-    # 1.) For Loop to decide players
-    # 2.) While loop for each player until number of hands have been played
-    # 3.) While loop for each hand until player stands or busts
-
-
-    # player's turn
-    for plr in playerList:
-        for h in plr.hand.values():
-            # Naturals
-            if h.naturals == True:
-                if dealer.hand[0].naturals == True:
-                    exit("Push")
-                else:
-                    exit("Blackjack!!")
-            choices = [o for o in h.options if h.options[o] == True]
-            inText = f"What do you wish to do? {choices}\n"
-            h.decision = decision(input(f"{inText}"), choices)
-
-            if h.decision == "Hit":
-                # Add card
-                pass
-            if h.decision == "Stand":
-                # Resolve and reveal cards of dealer and player
-                pass
-            if h.decision == "Surrender":
-                # Return 50% bet
-                pass
-            if h.decision == "Double":
-                # Resolve normal and 2*bet for result
-                pass
-            if h.decision == "Split":
-                # will be a bit of a pain in the ass to make this one
-                #  - have to remove current hand
-                #  - create 2 new hands and eval them
-                #  - run each hand through loop like this again
-                #  - allow for inf. splits
-                pass
+    # # Evaluate the hands of player(s) and dealer ==================
+    # for plr in tableList:
+    #     plr.hand[0] = hand(plr.dealtHand, plr.info)
+    #     if plr.info["Name"] == "Dealer":
+    #         print(plr.info["Name"], [plr.hand[0].cInfo[0], ('?', '?')])
+    #     else:
+    #         print(plr.info["Name"], plr.hand[0].cInfo)
 
     # dealer's turn
     while dealer.hand[0].cSum < 17:
-        dealer.hand[0].addCard(shoe.cards[0], dealer.info)
+        dealer.hand.addCard(shoe.cards[0], dealer.info)
         del shoe.cards[0]
+
+    # 1.) For Loop over order of players
+    # 2.) While Loop for each hand
+
+    tempList = [tempObj()]
+
+    for player in tempList:
+        currHand = 1
+        while currHand <= len(player.handSize):
+            odds = random.randint(1, 2)
+            if odds == 1:
+                player.handSize.append(odds)
+            else:
+                player.handSize.append(odds)
+            currHand = currHand + 1
+            print(currHand)
+
