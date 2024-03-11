@@ -11,9 +11,8 @@ valDict = {
 }
 altDict = valDict.copy()
 altDict["A"] = 1
-hitList = ["y", "Y", True]
-rmvlStatement = ("Security has removed you from the casino for "
-                 "being incompetent.")
+rmvlStatement = (
+    "Security has removed you from the casino for being incompetent.")
 retry = "Input unrecognized, choose from: \n"
 
 
@@ -150,7 +149,8 @@ def playDecision(currPlr, hnd, currHand, shoe):
         options = [o for o in hnd.options if hnd.options[o] == True]
 
         if hnd.naturals == False:
-            print("\nHand:\n", hnd.cInfo, "\n value:", hnd.cSum, "\n")
+            print("\nHand:\n", hnd.cInfo, "\n value:", hnd.cSum, "\n",
+                  f"\nDealer's Hand:\n {currPlayer.dealerHand}\n")
             hnd.decision = decision(options)
         else:
             hnd.Stand == True
@@ -160,7 +160,6 @@ def playDecision(currPlr, hnd, currHand, shoe):
             # Add card
             hnd.addCard(shoe.cards[0], currPlr.info)
             del shoe.cards[0]
-            print(hnd.cInfo)
         elif hnd.decision == "stand":
             hnd.Stand = True
         elif hnd.decision == "double":
@@ -179,6 +178,8 @@ def playDecision(currPlr, hnd, currHand, shoe):
             currPlr.hands.insert(currHand-1, split2)
             currPlr.hands.insert(currHand-1, split1)
             hnd = currPlr.hands[0]
+        if hnd.Bust == True:
+            print("\nBUST!!\n")
 
 
 if __name__ == "__main__":
@@ -192,35 +193,33 @@ if __name__ == "__main__":
     tableList = [player, dealer]
     playerList = [player]
 
-    playerCards = [card(("♥", 7)), card(("♦", 7))]
-    player.hands.append(hand(playerCards, player.info))
+    # playerCards = [card(("♥", 7)), card(("♦", 7))]
+    # player.hands.append(hand(playerCards, player.info))
 
-    dealerCards = [card(("♥", 10)), card(("♦", 7))]
-    dealer.hands.append(hand(dealerCards, dealer.info))
+    # dealerCards = [card(("♥", 10)), card(("♦", 7))]
+    # dealer.hands.append(hand(dealerCards, dealer.info))
 
-    # # deal out cards based on seats at table ====================
-    # for plr in 2 * tableList:
-    #     plr.dealtHand += [shoe.cards[0]]
-    #     del shoe.cards[0]
+    # deal out cards based on seats at table ====================
+    for plr in 2 * tableList:
+        plr.dealtHand += [shoe.cards[0]]
+        del shoe.cards[0]
 
-    # # Evaluate the hands of player(s) and dealer ================
-    # for plr in tableList:
-    #     plr.hand[0] = hand(plr.dealtHand, plr.info)
-    #     if plr.info["Name"] == "Dealer":
-    #         print(plr.info["Name"], [plr.hand[0].cInfo[0], ('?', '?')])
-    #     else:
-    #         print(plr.info["Name"], plr.hand[0].cInfo)
+    # Evaluate the hands of player(s) and dealer ================
+    for plr in tableList:
+        plr.hands.append(hand(plr.dealtHand, plr.info))
 
+    # Players make decisions here
     for currPlayer in playerList:
         currHand = 1
+        currPlayer.dealerHand = [dealer.hands[0].cInfo[0], ('?', '?')]
         while currHand <= len(currPlayer.hands):
             for thisHand in currPlayer.hands:
                 playDecision(currPlayer, thisHand, currHand, shoe)
             currHand = currHand + 1
 
-    # dealer's turn =============================================
+    # Dealer's turn =============================================
     while dealer.hands[0].cSum < 17:
-        dealer.hands.addCard(shoe.cards[0], dealer.info)
+        dealer.hands[0].addCard(shoe.cards[0], dealer.info)
         del shoe.cards[0]
 
     for player in tableList:
