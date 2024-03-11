@@ -1,5 +1,6 @@
 #!/home/geyer/anaconda3/bin/python3
 
+# import pandas as pd
 import numpy as np
 import random
 from itertools import product as prod
@@ -10,8 +11,9 @@ valDict = {
 }
 altDict = valDict.copy()
 altDict["A"] = 1
-rmvMsg = "Security is removing you from the casino for incompetence."
-retryMsg = "Input unrecognized, choose from: \n"
+rmvlStatement = (
+    "Security has removed you from the casino for being incompetent.")
+retry = "Input unrecognized, choose from: \n"
 
 
 class Shoe:
@@ -126,9 +128,9 @@ def decision(opts, incompetent=0):
     # Left room for another comment
     while playerInput not in allChoices:
         if incompetent == 3:
-            exit(f"\n{'>:(    '*10}\n{rmvMsg}\n")
+            exit(f"\n{'>:(    '*10}\n{rmvlStatement}\n")
         incompetent = incompetent + 1
-        playerInput = input(f"{retryMsg}{opts}\n>>> ")
+        playerInput = input(f"{retry}{opts}\n>>> ")
 
     return playerInput
 
@@ -178,11 +180,10 @@ def playDecision(currPlr, hnd, currHand, shoe):
             hnd = currPlr.hands[0]
         if hnd.Bust == True:
             print("\nBUST!!\n")
-        if hnd.cSum == 21:
-            hnd.Stand = True
 
 
 if __name__ == "__main__":
+    # for now, just 1 playable character
     shoe = Shoe(6)
     player = Player(1000, 1)
     player.addBet(50)
@@ -191,15 +192,17 @@ if __name__ == "__main__":
     # deal out cards based on seats at table
     tableList = [player, dealer]
     playerList = [player]
+
+    # deal out cards based on seats at table ====================
     for plr in 2 * tableList:
         plr.dealtHand += [shoe.cards[0]]
         del shoe.cards[0]
 
-    # Evaluate the hands of player(s) and dealer
+    # Evaluate the hands of player(s) and dealer ================
     for plr in tableList:
         plr.hands.append(hand(plr.dealtHand, plr.info))
 
-    # Players make there decisions
+    # Players make decisions here
     for currPlayer in playerList:
         currHand = 1
         currPlayer.dealerHand = [dealer.hands[0].cInfo[0], ('?', '?')]
@@ -208,7 +211,7 @@ if __name__ == "__main__":
                 playDecision(currPlayer, thisHand, currHand, shoe)
             currHand = currHand + 1
 
-    # Dealer's turn
+    # Dealer's turn =============================================
     while dealer.hands[0].cSum < 17:
         dealer.hands[0].addCard(shoe.cards[0], dealer.info)
         del shoe.cards[0]

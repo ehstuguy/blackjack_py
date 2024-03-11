@@ -1,0 +1,10 @@
+
+""" Things to do:
+    - finish deciding what to do with naturals
+    - add feature to all players to take insurance
+    - allow there to be multiple players at the table
+    - make loop continuous, each hand main player decides to continue
+    - add losing money
+    - [long term] make this possible to run as a simulation with Monte Carlo parameters
+"""
+┐
