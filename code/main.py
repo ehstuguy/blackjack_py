@@ -12,7 +12,7 @@ rmvMsg = "Security is removing you from the casino for incompetence."
 retryMsg = "Input unrecognized, choose from: \n"
 contDict = {"Y": True, "y": True, "Yes": True, "yes": True,
     "n": False, "N": False, "no": False, "No": False}
-
+contOpts = list(contDict.keys())
 
 class Shoe:
 
@@ -59,10 +59,21 @@ class Player:
         self.info["Bet"] = betAmt
 
 
+    def clearHand(self):
+        self.dealtHand = []
+        self.hands = []
+        self.info["Bet"] = 0
+
+
 class Dealer:
 
     def __init__(self):
         self.info = {"Name": "Dealer"}
+        self.dealtHand = []
+        self.hands = []
+
+
+    def clearHand(self):
         self.dealtHand = []
         self.hands = []
 
@@ -103,7 +114,6 @@ class hand:
 
     def addCard(self, nCard, pData):
         """Added from hitting or doubling-down"""
-        # dict_keys(['cInfo', 'suit', 'val'])
         self.cInfo += [nCard.cInfo]
         self.cVal += [nCard.val]
         self.cSum += valDict[nCard.val]
@@ -120,42 +130,37 @@ class hand:
 
 
 def decision(opts, dType, incompetent=0):
-    # Left room for a comment
+    """Player choice for playing or continuing"""
     if dType == "Play":
         playerInput = input(f"Make a choice: {opts}\n>>> ").lower()
     elif dType == "Cont":
-        playerInput = input("Continue? [Y/n]\n>>> ")
+        playerInput = input("\nContinue? [Y/n]\n>>> ")
     allChoices = opts + [i.lower() for i in opts]
-    # Left room for another comment
     while playerInput not in allChoices:
         if incompetent == 3:
             exit(f"\n{'>:(    '*10}\n{rmvMsg}\n")
         incompetent = incompetent + 1
         playerInput = input(f"{retryMsg}{opts}\n>>> ")
-
     return playerInput
 
 
 def playDecision(currPlr, hnd, currHand, shoe):
     while hnd.Stand == False and hnd.Bust == False:
         options = [o for o in hnd.options if hnd.options[o] == True]
-        vsHands = (f"\nDealer's Hand:\n {currPlr.dealerHand}\n"
-            f"\nHand:\n {hnd.cInfo}\n value: {hnd.cSum}\n")\
+        vsHands = (
+            f"\n{'='*50}\nDealer's Hand:\n {currPlr.dealerHand}\n"
+            f"\nHand [{currHand} of {len(currPlr.hands)}]:"
+            f"\n {hnd.cInfo}\n value: {hnd.cSum}\n{'='*50}\n")
 
-        if len(hnd.cHand) > 2:
-            pass  # and
-        elif hnd.naturals == True and dealer.hands[0].naturals == True:
-            exit("Push\n")
+        if hnd.naturals == True and dealer.hands[0].naturals == True:
+            hnd.decision = "stand"
         elif hnd.naturals == True:
-            exit("Blackjack!")
+            hnd.decision = "stand"
         elif dealer.hands[0].naturals == True:
-            exit("Dealer Blackjack :(")
-
-        if hnd.naturals == False:
-            print(vsHands)
-            hnd.decision = decision(options)
+            hnd.decision = "stand"
         else:
-            hnd.Stand == True
+            print(vsHands)
+            hnd.decision = decision(options, "Play")
 
         # Player decision for non-natural hands play here
         if hnd.decision == "hit":
@@ -167,25 +172,26 @@ def playDecision(currPlr, hnd, currHand, shoe):
             hnd.Bet = 2 * hnd.Bet
             hnd.addCard(shoe.cards[0], currPlr.info)
             del shoe.cards[0]
+            print(f"\nHand [{currHand} of {len(currPlr.hands)}]:"
+                f"\n {hnd.cInfo}\n value: {hnd.cSum}\n{'='*50}\n")
             hnd.Stand = True
         elif hnd.decision == "split":
-            split1 = hand([hnd.cHand[0], shoe.cards[0]], currPlr.info)
-            del shoe.cards[0]
-            split2 = hand([hnd.cHand[1], shoe.cards[0]], currPlr.info)
-            del shoe.cards[0]
+            for crd in hnd.cHand:
+                splitHand = hand([crd, shoe.cards[0]], currPlr.info)
+                del shoe.cards[0]
+                currPlr.hands.insert(currHand, splitHand)
             currPlr.hands.pop(currHand-1)
-            currPlr.hands.insert(currHand-1, split2)
-            currPlr.hands.insert(currHand-1, split1)
             hnd = currPlr.hands[0]
         if hnd.Bust == True:
-            print("\nBUST!!\n")
+            print(f"\nBUST!!\n\n{hnd.cInfo}\nvalue: {hnd.cSum}"
+                  f"\n{'='*50}")
         if hnd.cSum == 21:
             hnd.Stand = True
 
 
 def playGame(shoe, tableList, playerList):
-    for player in 2 * tableList:
-        player.dealtHand += [shoe.cards[0]]
+    for player in 2*tableList:
+        player.dealtHand += [shoe.cards[0]]  # [card(('♦', 10))]
         del shoe.cards[0]
 
     # Evaluate the hands of player(s) and dealer
@@ -203,11 +209,16 @@ def playGame(shoe, tableList, playerList):
             currHand = currHand + 1
 
     # Check player's Hand before going to dealer
+    bustList = []
+    for Plr in playerList:
+        for hnd in Plr.hands:
+            bustList.append(hnd.Bust)
 
-    # Dealer's turn
-    while dealer.hands[0].cSum < 17:
-        dealer.hands[0].addCard(shoe.cards[0], dealer.info)
-        del shoe.cards[0]
+    if False in bustList:
+        # Dealer's turn only if one hand has not busted\
+        while dealer.hands[0].cSum < 17:
+            dealer.hands[0].addCard(shoe.cards[0], dealer.info)
+            del shoe.cards[0]
 
     # evaluate hands later
     for player in tableList:
@@ -218,6 +229,8 @@ def playGame(shoe, tableList, playerList):
             for allHands in player.hands:
                 print(allHands.cSum, allHands.cInfo)
 
+    for player in tableList:
+        player.clearHand()  # clear hands before next play
 
 
 if __name__ == "__main__":
@@ -225,54 +238,13 @@ if __name__ == "__main__":
     player = Player(1000, 1)
     player.addBet(50)
 
-    # deal out cards based on seats at table
     tableList = [player, dealer]
     playerList = [player]
 
     playerCont = True
-
     while playerCont == True:
-        print(len(shoe.cards), shoe.cut)
-        contOpts = list(contDict.keys())
+        playGame(shoe, tableList, playerList)
         playerCont = contDict[decision(contOpts, "Cont")]
-        del shoe.cards[0:15]
         if len(shoe.cards) <= shoe.cut:
             print("Cut Card Revealed, reshuffling shoe!\n")
             shoe = Shoe(6)
-        else:
-            pass
-
-
-
-    # for player in 2 * tableList:
-    #     player.dealtHand += [shoe.cards[0]]
-    #     del shoe.cards[0]
-
-    # # Evaluate the hands of player(s) and dealer
-    # for player in tableList:
-    #     player.hands.append(hand(player.dealtHand, player.info))
-
-    # # Players make there decisions
-    # dealerInfo = [dealer.hands[0].cInfo[0], ('?', '?')]
-    # for currPlayer in playerList:
-    #     currHand = 1
-    #     currPlayer.dealerHand = dealerInfo
-    #     while currHand <= len(currPlayer.hands):
-    #         for thisHand in currPlayer.hands:
-    #             playDecision(currPlayer, thisHand, currHand, shoe)
-    #         currHand = currHand + 1
-
-    # # Check player's Hand before going to dealer
-
-    # # Dealer's turn
-    # while dealer.hands[0].cSum < 17:
-    #     dealer.hands[0].addCard(shoe.cards[0], dealer.info)
-    #     del shoe.cards[0]
-
-    # for player in tableList:
-    #     print(f"\n{player.info['Name']}")
-    #     if len(player.hands) < 1:
-    #         pass
-    #     else:
-    #         for allHands in player.hands:
-    #             print(allHands.cSum, allHands.cInfo)
