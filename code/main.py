@@ -191,6 +191,7 @@ if __name__ == "__main__":
     # deal out cards based on seats at table
     tableList = [player, dealer]
     playerList = [player]
+    npcList = []
     for plr in 2 * tableList:
         plr.dealtHand += [shoe.cards[0]]
         del shoe.cards[0]
@@ -212,6 +213,12 @@ if __name__ == "__main__":
     while dealer.hands[0].cSum < 17:
         dealer.hands[0].addCard(shoe.cards[0], dealer.info)
         del shoe.cards[0]
+
+    # Make a rule set for NPCs
+    for player in npcList:
+        while player.hands[0].cSum < 17:
+            player.hands[0].addCard(shoe.cards[0], dealer.info)
+            del shoe.cards[0]
 
     for player in tableList:
         print(f"\n{player.info['Name']}")
