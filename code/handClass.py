@@ -13,6 +13,8 @@ class hand:
         self.cInfo = [n.cInfo for n in nHand]
         self.cVal = [n.val for n in nHand]
         self.cSum = sum(valDict[n.val] for n in nHand)
+        if self.cSum > 21 and "A" in self.cVal:
+            self.cSum = sum([altDict[i] for i in self.cVal])
         self.Bust = False
         self.Stand = False
         if playerInfo["Name"] != "Dealer":
@@ -25,7 +27,6 @@ class hand:
         self.options = ["Hit", "Stand"]
         self.naturals = False
         if len(self.cInfo) == 2:
-            # player has only 2 cards, so check naturals
             if self.cSum == 21:
                 self.naturals = True
             if "Player" in pData["Name"]:

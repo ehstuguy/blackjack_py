@@ -126,7 +126,7 @@ class hand:
             self.eval(pData)
 
 
-def decision(opts, dType, incompetent=0):
+def playerInput(opts, dType, incompetent=0):
     """Player choice for playing or continuing"""
     if dType == "Play":
         playerInput = input(f"Make a choice: {opts}\n>>> ").lower()
@@ -141,7 +141,7 @@ def decision(opts, dType, incompetent=0):
     return playerInput
 
 
-def playDecision(currPlr, hnd, currHand, shoe):
+def playerOutcome(currPlr, hnd, currHand, shoe):
     while hnd.Stand == False and hnd.Bust == False:
         options = [o for o in hnd.options if hnd.options[o] == True]
         vsHands = (
@@ -157,7 +157,7 @@ def playDecision(currPlr, hnd, currHand, shoe):
             hnd.decision = "stand"
         else:
             print(vsHands)
-            hnd.decision = decision(options, "Play")
+            hnd.decision = playerInput(options, "Play")
 
         # Player decision for non-natural hands play here
         if hnd.decision == "hit":
@@ -188,7 +188,7 @@ def playDecision(currPlr, hnd, currHand, shoe):
 
 def playGame(shoe, tableList, playerList):
     for player in 2*tableList:
-        player.dealtHand += [card(('♦', 'A'))]  # [shoe.cards[0]]  #
+        player.dealtHand += [shoe.cards[0]]  # [card(('♦', 'A'))]  #
         del shoe.cards[0]
 
     # Evaluate the hands of player(s) and dealer
@@ -202,7 +202,7 @@ def playGame(shoe, tableList, playerList):
         currPlayer.dealerHand = dealerInfo
         while currHand <= len(currPlayer.hands):
             for thisHand in currPlayer.hands:
-                playDecision(currPlayer, thisHand, currHand, shoe)
+                playerOutcome(currPlayer, thisHand, currHand, shoe)
             currHand = currHand + 1
 
     # Check player's Hand before going to dealer
@@ -241,7 +241,7 @@ if __name__ == "__main__":
     playerCont = True
     while playerCont == True:
         playGame(shoe, tableList, playerList)
-        playerCont = contDict[decision(contOpts, "Cont")]
+        playerCont = contDict[playerInput(contOpts, "Cont")]
         if len(shoe.cards) <= shoe.cut:
             print("Cut Card Revealed, reshuffling shoe!\n")
             shoe = Shoe(6)
