@@ -15,7 +15,6 @@ contDict = {"Y": True, "y": True, "Yes": True, "yes": True,
 contOpts = list(contDict.keys())
 
 class Shoe:
-
     def __init__(self, nDecks):
         """Input a number of decks for the shoe"""
         self.makeShoe(nDecks)
@@ -37,7 +36,6 @@ class Shoe:
 
 
 class card:
-
     def __init__(self, cardInfo):
         """Reference card suit or val at any point"""
         self.cInfo = cardInfo
@@ -46,7 +44,6 @@ class card:
 
 
 class Player:
-
     def __init__(self, bankroll, playerNum):
         """Starting dollar amount and player number"""
         self.info = {"Name": f"Player{playerNum}"}
@@ -66,7 +63,6 @@ class Player:
 
 
 class Dealer:
-
     def __init__(self):
         self.info = {"Name": "Dealer"}
         self.dealtHand = []
@@ -79,13 +75,14 @@ class Dealer:
 
 
 class hand:
-
     def __init__(self, nHand, playerInfo):
         """Cards that are initially dealt to player"""
         self.cHand = nHand
         self.cInfo = [n.cInfo for n in nHand]
         self.cVal = [n.val for n in nHand]
         self.cSum = sum(valDict[n.val] for n in nHand)
+        if self.cSum > 21 and "A" in self.cVal:
+            self.cSum = sum([altDict[i] for i in self.cVal])
         self.Bust = False
         self.Stand = False
         if playerInfo["Name"] != "Dealer":
@@ -191,7 +188,7 @@ def playDecision(currPlr, hnd, currHand, shoe):
 
 def playGame(shoe, tableList, playerList):
     for player in 2*tableList:
-        player.dealtHand += [shoe.cards[0]]  # [card(('♦', 10))]
+        player.dealtHand += [card(('♦', 'A'))]  # [shoe.cards[0]]  #
         del shoe.cards[0]
 
     # Evaluate the hands of player(s) and dealer
