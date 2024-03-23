@@ -147,8 +147,12 @@ def playRound(tableList: list, playerList: list) -> None:
             playerTurn(currPlayer, dlrInfo)
 
     # Dealer's Turn
+
     while dealer.hands[0].sum < 17:
         dealer.hands[0].checkHand([shoe.draw()], dealer)
+    print(
+        f"\n{'='*50}\nDealer's Hand:\n {dealer.hands[0].info}\n "
+        f"value = {dealer.hands[0].sum}")
     dNat = dealer.hands[0].naturals
 
     # Evaluate Round
