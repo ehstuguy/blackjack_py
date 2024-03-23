@@ -17,7 +17,6 @@ class Hand:
         self.bust = False
         self.stand = False
         self.naturals = None
-        self.soft = None
         self.checkHand(nCard, player)
 
     def checkHand(self, nCard: list[object], player: object) -> None:
@@ -25,17 +24,12 @@ class Hand:
         self.info = [n.info for n in self.cards]
         self.val = [n.val for n in self.cards]
         self.sum = sum(valDict[n] for n in self.val)
-        aceless = [valDict[c.val] for c in self.cards if c.val != "A"]
-        aces = [c.val for c in self.cards if c.val == "A"]
-
         if self.sum > 21:
-            if len(aces) > 1:
-                pass
-            #     self.sum = sum([altDict[i] for i in self.val])
-            # else:
-            #     firstCard = [valDict[self.cards[0].val]]
-            #     otherCard = [altDict[i] for i in self.val[1:]]
-            #     self.sum = sum(firstCard + otherCard)
+            newSum = sum(altDict[n] for n in self.val)
+            if newSum <= 11 and "A" in self.val:
+                self.sum = newSum - 1 + 11
+            else:
+                self.sum = newSum
         # bust or evaluate
         if self.sum > 21:
             self.bust = True
