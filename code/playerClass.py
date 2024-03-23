@@ -3,6 +3,8 @@ class Player:
         """Starting dollar amount of money and player seat"""
         self.seat = playerSeat
         self.bankroll = bankroll
+        self.bet = None
+        self.insurance = None
         self.dealt = []
         self.hands = []
         self.done = False
@@ -11,9 +13,9 @@ class Player:
         self.bet = amount
 
     def reset(self) -> None:
+        self.bet = None
         self.dealt = []
         self.hands = []
-        self.bet = 0
         self.done = False
 
 

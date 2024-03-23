@@ -1,32 +1,45 @@
 valDict = {2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9,
     10: 10, "J": 10, "Q": 10, "K": 10, "A": 11}
-altDict = valDict.copy()
-altDict["A"] = 1
+altDict = {2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9,
+    10: 10, "J": 10, "Q": 10, "K": 10, "A": 1}
+
 
 class Hand:
-    def __init__(self, nCard, player) -> None:
+    def __init__(self, nCard: list[object], player: object) -> None:
         """Cards that are initially dealt to player"""
-        self.hand = []
+        self.cards = []
         self.info = []
         self.val = []
         if player.seat != 0:
-            self.Bet = player.bet
-        self.Bust = False
-        self.Stand = False
+            self.bet = player.bet   # bet might be doubled later
+            self.win = None
+            self.decision = None
+        self.bust = False
+        self.stand = False
+        self.naturals = None
+        self.soft = None
         self.checkHand(nCard, player)
 
-    def checkHand(self, nCard, player) -> None:
-        self.info += [n.info for n in nCard]
-        self.val += [n.val for n in nCard]
-        self.sum = sum(valDict[n.val] for n in nCard)
-        if self.sum > 21 and "A" in self.Val:
-            self.sum = sum([altDict[i] for i in self.Val])
-            if self.sum > 21:
-                self.Bust = True
-            else:
-                self.eval(player)
-        elif self.sum > 21:
-            self.Bust = True
+    def checkHand(self, nCard: list[object], player: object) -> None:
+        self.cards += nCard
+        self.info = [n.info for n in self.cards]
+        self.val = [n.val for n in self.cards]
+        self.sum = sum(valDict[n] for n in self.val)
+        aceless = [valDict[c.val] for c in self.cards if c.val != "A"]
+        aces = [c.val for c in self.cards if c.val == "A"]
+
+        if self.sum > 21:
+            if len(aces) > 1:
+                pass
+            #     self.sum = sum([altDict[i] for i in self.val])
+            # else:
+            #     firstCard = [valDict[self.cards[0].val]]
+            #     otherCard = [altDict[i] for i in self.val[1:]]
+            #     self.sum = sum(firstCard + otherCard)
+        # bust or evaluate
+        if self.sum > 21:
+            self.bust = True
+            self.stand = True
         else:
             self.eval(player)
 
@@ -44,6 +57,21 @@ class Hand:
                     self.options["Split"] = True
                 if player.bankroll-player.bet >= player.bet:
                     self.options["Double"] = True
+        else:
+            if self.sum == 21:
+                self.stand = True
+            elif self.sum > 21:
+                self.bust = True
+                self.stand = True
+
+
+    def payOut(self, player: object) -> None:
+        if self.naturals == True:
+            player.bankroll += player.bet * 1.5
+        elif self.win == True and self.naturals == False:
+            player.bankroll += player.bet
+        elif self.win == False:
+            player.bankroll -= player.bet
 
 
 if __name__ == "__main__":

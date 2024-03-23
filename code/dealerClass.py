@@ -4,7 +4,7 @@ class Dealer:
         self.dealt = []
         self.hands = []
 
-    def clearHand(self) -> None:
+    def reset(self) -> None:
         self.dealt = []
         self.hands = []
 
