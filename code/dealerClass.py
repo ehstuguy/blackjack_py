@@ -1,11 +1,13 @@
 class Dealer:
-
     def __init__(self) -> None:
         self.seat = 0
-        self.dealtHand = []
+        self.dealt = []
         self.hands = []
-
 
     def clearHand(self) -> None:
-        self.dealtHand = []
+        self.dealt = []
         self.hands = []
+
+
+if __name__ == "__main__":
+    pass

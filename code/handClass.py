@@ -5,56 +5,53 @@ valDict = {
 altDict = valDict.copy()
 altDict["A"] = 1
 
-class hand:
-
-    def __init__(self, nHand, playerInfo):
+class Hand:
+    def __init__(self, nHand, player):
         """Cards that are initially dealt to player"""
-        self.cHand = nHand
-        self.cInfo = [n.cInfo for n in nHand]
-        self.cVal = [n.val for n in nHand]
-        self.cSum = sum(valDict[n.val] for n in nHand)
-        if self.cSum > 21 and "A" in self.cVal:
-            self.cSum = sum([altDict[i] for i in self.cVal])
+        self.Hand = nHand
+        self.Info = [n.info for n in nHand]
+        self.Val = [n.val for n in nHand]
+        self.Sum = sum(valDict[n.val] for n in nHand)
+        if self.Sum > 21 and "A" in self.cVal:
+            self.Sum = sum([altDict[i] for i in self.cVal])
         self.Bust = False
         self.Stand = False
-        if playerInfo["Name"] != "Dealer":
-            self.Bet = playerInfo["Bet"]
-        self.eval(playerInfo)
+        if player.seat != 0:
+            self.Bet = player.bet
+        self.eval(player)
 
-
-    def eval(self, pData):
+    def eval(self, player: object):
         """Evaluate the player's hand for value and possible moves"""
-        self.options = ["Hit", "Stand"]
+        self.options = {"Hit": True, "Stand": True}
         self.naturals = False
-        if len(self.cInfo) == 2:
-            if self.cSum == 21:
+        if len(self.Info) == 2:
+            if self.Sum == 21:
                 self.naturals = True
-            if "Player" in pData["Name"]:
+            elif player.seat != 0:
                 self.options["Split"] = False
                 self.options["Double"] = False
                 # Split
-                if self.cInfo[0][1] == self.cInfo[1][1]:
+                if self.Info[0][1] == self.Info[1][1]:
                     self.options["Split"] = True
                 # Double-Down
-                if pData["Bankroll"]-pData["Bet"] >= pData["Bet"]:
+                if player.bankroll-player.bet >= player.bet:
                     self.options["Double"] = True
 
-
-    def addCard(self, nCard, pData):
+    def addCard(self, nCard, player):
         """Added from hitting or doubling-down"""
-        self.cInfo += [nCard.cInfo]
-        self.cVal += [nCard.val]
-        self.cSum += valDict[nCard.val]
-        if self.cSum > 21 and "A" in self.cVal:
-            self.cSum = sum([altDict[i] for i in self.cVal])
-            if self.cSum > 21:
+        self.Info += [nCard.info]
+        self.Val += [nCard.val]
+        self.Sum += valDict[nCard.val]
+        if self.Sum > 21 and "A" in self.Val:
+            self.Sum = sum([altDict[i] for i in self.Val])
+            if self.Sum > 21:
                 self.Bust = True
             else:
-                self.eval(pData)
-        elif self.cSum > 21:
+                self.eval(player)
+        elif self.Sum > 21:
             self.Bust = True
         else:
-            self.eval(pData)
+            self.eval(player)
 
 
 if __name__ == "__main__":
