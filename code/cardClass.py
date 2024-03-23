@@ -1,28 +1,3 @@
-import random
-from itertools import product as prod
-import numpy as np
-
-
-class Shoe:
-    def __init__(self, numDecks: int) -> None:
-        """Input a number of decks; 6 is most common"""
-        self.makeShoe(numDecks)
-        self.cutDeck()
-
-    def makeShoe(self, numDecks: int) -> None:
-        suits = ["♠", "♥", "♦", "♣"]
-        vals = list(np.arange(2, 11)) + ["J", "Q", "K", "A"]
-        cards = list(prod(suits, vals)) * numDecks
-        shuffledCards = random.sample(cards, k=len(cards))
-        self.cards = [card(rngCard) for rngCard in shuffledCards]
-
-    def cutDeck(self) -> None:
-        self.cut = random.randint(1, random.randint(243, 276))
-
-    def draw(self) -> None:
-        return self.cards.pop(0)
-
-
 class card:
     def __init__(self, card: tuple) -> None:
         """Reference card suit or val at any point"""
