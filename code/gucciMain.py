@@ -25,7 +25,7 @@ def inputArgs(argType: str, currPlayer: object, **kwargs) -> None:
         if "y" in takeInsur:
             currPlayer.insurance = True
     elif argType == "Bet":
-        betMsg = (f"Player {currPlayer.seat}'s current bankroll: "
+        betMsg = (f"\n\nPlayer {currPlayer.seat}'s current bankroll: "
                   f"{currPlayer.bankroll}\nPlace your bet\n>>> ")
         betInput = int(input(betMsg))
         while betInput > currPlayer.bankroll:
