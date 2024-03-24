@@ -50,9 +50,12 @@ def regPlay(currPlayer: object, hand: object) -> None:
         hand.stand = True
         return hand
     elif hand.decision == "split":
-        for crd in hand.cards:
-            splitHand = Hand([crd, card(('♦', 10))], currPlayer)
-            currPlayer.hands.insert(hand.index, splitHand)
+        ogHandIdx = hand.index
+        for i, crd in enumerate(hand.cards):
+            # splitHand = Hand([crd, card(('♦', 10))], currPlayer)
+            splitHand = Hand([crd, shoe.draw()], currPlayer)
+            splitHand.index = ogHandIdx + i
+            currPlayer.hands.insert(splitHand.index, splitHand)
         currIndex = currPlayer.idxNum - 1
         currPlayer.hands.pop(currIndex)
         return currPlayer.hands[currIndex]
@@ -63,7 +66,7 @@ def playerHand(currPlayer: object, hand: object) -> None:
         pNatural = hand.naturals
         dNatural = dealer.hands[0].naturals
         dHand = dealer.hands[0]
-        print(f"\nDealer's Hand\n {hand.dlrInfo}\n"
+        print(f"\nDealer's Hand\n {currPlayer.dlrInfo}\n"
               f"\nPlayer {currPlayer.seat} Hand "
               f"[{currPlayer.idxNum} of {len(currPlayer.hands)}]:"
               f"\n {hand.info}\n value: {hand.sum}\n")
@@ -92,7 +95,7 @@ def playerHand(currPlayer: object, hand: object) -> None:
 def playerTurn(currPlayer: object, dlrInfo: list[tuple, tuple]) -> None:
         for idx, hand in enumerate(currPlayer.hands):
             currPlayer.idxNum = idx + 1
-            hand.dlrInfo = dlrInfo
+            currPlayer.dlrInfo = dlrInfo
             playerHand(currPlayer, hand)  # run it
 
 
@@ -131,7 +134,7 @@ def compareHands(plr: object, pHand: object, dHand: object) -> None:
 
 
 def playRound(tableList: list, playerList: list) -> None:
-    # testHand = [card(('♣', 'A')), card(('♣', 'A'))]
+    # testHand = [card(('♣', 10)), card(('♣', 10))]
 
     for plr in playerList:
         # inputArgs("Bet", player)  # player adds bet
