@@ -201,9 +201,9 @@ def playRound(tableList: list, playerList: list, **kwargs) -> None:
         pos.hands.append(Hand(pos.dealt, pos))  # evaluate hands
 
     # # test for bugs ===================================================
-    testHand = specCards()
-    dealer.hands[0] = Hand(testHand, dealer)
-    player.hands[0] = Hand(testHand, player)
+    # testHand = specCards()
+    # dealer.hands[0] = Hand(testHand, dealer)
+    # player.hands[0] = Hand(testHand, player)
 
     dlrInfo = [dealer.hands[0].info[0], ("?", "?")]
     print(f"\n{'='*50}\nDealer's Hand:\n {dlrInfo}\n")
