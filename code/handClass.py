@@ -17,6 +17,7 @@ class Hand:
         self.bust = False
         self.stand = False
         self.naturals = None
+        self.push = None
         self.checkHand(nCard, player)
 
     def checkHand(self, nCard: list[object], player: object) -> None:
@@ -62,6 +63,8 @@ class Hand:
     def payOut(self, player: object) -> None:
         if self.naturals == True:
             player.bankroll += player.bet * 1.5
+        elif self.push == True:
+            player.bankroll += 0
         elif self.win == True and self.naturals == False:
             player.bankroll += player.bet
         elif self.win == False:
