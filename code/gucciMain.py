@@ -1,42 +1,55 @@
+#!/home/geyer/anaconda3/bin/python3.11
+
 from dealerClass import Dealer
 from playerClass import Player
 from deckClass import deck
-# from cardClass import card
+from cardClass import card
 from handClass import Hand
 
 
 def inputArgs(argType: str, currPlayer: object, **kwargs) -> None:
     if argType == "Continue":
-        contGame = str(input("Continue? [Y/n]\n>>> ")).lower()
+        contGame = str(input("\nContinue? [Y/n]\n>>> ")).lower()
         if "n" in contGame:
             currPlayer.done = True
+        else:
+            pass
     elif argType == "Options":
         options = [i.lower() for i in kwargs["hand"].optList]
-        print(kwargs["hand"].optList)
+        print(f"\n{kwargs['hand'].optList}")
         optionStr = "Please make a choice as shown above \n>>> "
         playerInput = str(input(optionStr)).lower()
         while playerInput not in options:
-            print(kwargs["hand"].optList)
+            print(f"\n{kwargs['hand'].optList}")
             playerInput = str(input("Try again\n>>> ")).lower()
         return playerInput
     elif argType == "Insurance":
-        insurMsg = "Do you want to take Insurance?\n>>> "
+        insurMsg = "\nDo you want to take Insurance?\n>>> "
         takeInsur = str(input(insurMsg)).lower()
         if "y" in takeInsur:
             currPlayer.insurance = True
     elif argType == "Bet":
-        betMsg = (f"\n\nPlayer {currPlayer.seat}'s current bankroll: "
-                  f"{currPlayer.bankroll}\nPlace your bet\n>>> ")
+        betMsg = (f"\n\nPlayer {currPlayer.seat}'s "
+                  f"current bankroll: {currPlayer.bankroll}"
+                  "\nPlace your bet\n>>> ")
         betInput = int(input(betMsg))
         while betInput > currPlayer.bankroll:
-            newBetMsg = (f"{betInput} is more than you have. Please "
-                         "enter an amount lower than "
+            newBetMsg = (f"\n{betInput} is more than you have.\n"
+                         "Please enter an amount lower than "
                          f"{currPlayer.bankroll} for your bet\n>>> ")
             betInput = int(input(newBetMsg))
-        player.addBet(betInput)
+        currPlayer.addBet(betInput)
+    else:
+        pass
 
 
-def regPlay(currPlayer: object, hand: object) -> None:
+def specCards() -> list:
+    return [card(('♣', "A")), card(('♣', 10))]  # test hand
+
+
+def regPlay(currPlayer: object, hand: object, **kwargs) -> None:
+    dealer = kwargs["dealer"]
+    shoe = kwargs["shoe"]
     hand.decision = inputArgs("Options", currPlayer, hand=hand)
     if hand.decision == "hit":
         hand.checkHand([shoe.draw()], currPlayer)
@@ -59,13 +72,16 @@ def regPlay(currPlayer: object, hand: object) -> None:
         currIndex = currPlayer.idxNum - 1
         currPlayer.hands.pop(currIndex)
         return currPlayer.hands[currIndex]
+    else:
+        pass
 
 
-def playerHand(currPlayer: object, hand: object) -> None:
+def playerHand(currPlayer: object, hand: object, **kwargs) -> None:
+    dealer = kwargs["dealer"]
+
     while hand.stand != True:
         pNatural = hand.naturals
         dNatural = dealer.hands[0].naturals
-        dHand = dealer.hands[0]
         print(f"\nDealer's Hand\n {currPlayer.dlrInfo}\n"
               f"\nPlayer {currPlayer.seat} Hand "
               f"[{currPlayer.idxNum} of {len(currPlayer.hands)}]:"
@@ -74,48 +90,41 @@ def playerHand(currPlayer: object, hand: object) -> None:
             print("Draw")
             hand.stand = True
         elif pNatural == True:
-            print("Player wins")
+            print("\nPlayer wins with naturals", hand.sum)
             hand.win = True
             hand.stand = True
+            hand.payOut(currPlayer, hand.bet)
         elif dNatural == True:
-            print("Dealer wins natural", dealer.hands[0].sum)
+            print("\nDealer wins with naturals", dealer.hands[0].sum)
             hand.win = True
             hand.stand = True
         else:
-            print("Normal Play")
+            print("\nNormal Play")
             hand.optList = [o for o in hand.options
                             if hand.options[o]==True]
-            hand = regPlay(currPlayer, hand)
+            hand = regPlay(currPlayer, hand, **kwargs)
+    # currPlayer.hands.pop(currPlayer.idxNum - 1)
 
-    print(f"\nPlayer {currPlayer.seat} Hand "
-          f"[{currPlayer.idxNum} of {len(currPlayer.hands)}]:"
-          f"\n {hand.info}\n value: {hand.sum}\n")
+    # print(f"\nPlayer {currPlayer.seat} Hand "
+    #       f"[{currPlayer.idxNum} of {len(currPlayer.hands)}]:"
+    #       f"\n {hand.info}\n value: {hand.sum}\n")
 
 
-def playerTurn(currPlayer: object, dlrInfo: list[tuple, tuple]) -> None:
+def playerTurn(currPlayer: object, dlrInfo: list, **kwargs) -> None:
         for idx, hand in enumerate(currPlayer.hands):
             currPlayer.idxNum = idx + 1
             currPlayer.dlrInfo = dlrInfo
-            playerHand(currPlayer, hand)  # run it
+            playerHand(currPlayer, hand, **kwargs)  # run it
 
 
-def dealerTurn(dealer: object) -> None:
+def dealerTurn(dealer: object, **kwargs) -> None:
+    shoe = kwargs["shoe"]
     while dealer.hands[0].sum < 17:
         dealer.hands[0].checkHand([shoe.draw()], dealer)
-    print(f"\n{'='*50}\nDealer's Hand:\n {dealer.hands[0].info}\n "
-          f"value = {dealer.hands[0].sum}")
+    print(f"\n{'='*50}"
+          f"\nDealer's Hand:\n {dealer.hands[0].info}"
+          f"\n value = {dealer.hands[0].sum}")
 
-
-def compareSetup(playerList, dealer) -> None:
-    # Evaluate Round
-    dNat = dealer.hands[0].naturals
-    for currPlayer in playerList:
-        for hand in currPlayer.hands:
-            compareHands(currPlayer, hand, dealer.hands[0])
-            if currPlayer.insurance == True and dNat == True:
-                currPlayer.bankroll += currPlayer.bet
-            else:
-                pass
 
 def compareHands(plr: object, pHand: object, dHand: object) -> None:
     # # compare to dealer here
@@ -136,12 +145,32 @@ def compareHands(plr: object, pHand: object, dHand: object) -> None:
     pHand.payOut(plr, pHand.bet)
 
 
-def playRound(tableList: list, playerList: list) -> None:
-    # testHand = [card(('♣', 10)), card(('♣', 10))]
+def compareSetup(playerList: list, dealer: object, **kwargs) -> None:
+    # Evaluate Round
+    dNat = dealer.hands[0].naturals
+    for currPlayer in playerList:
+        for hand in currPlayer.hands:
+            compareHands(currPlayer, hand, dealer.hands[0])
+            if currPlayer.insurance == True and dNat == True:
+                currPlayer.bankroll += currPlayer.bet
+                print(f"\n|Player {currPlayer.seat}| Hand:"
+                      f"\n {hand.info}"
+                      f"\n value = {hand.sum}"
+                      f"\n win: {hand.win}, push: {hand.push}"
+                      f"\n bankroll: {currPlayer.bankroll}")
+            else:
+                pass
 
-    for plr in playerList:
+
+
+
+def playRound(tableList: list, playerList: list, **kwargs) -> None:
+    dealer = kwargs["dealer"]
+    shoe = kwargs["shoe"]
+
+    for player in playerList:
         inputArgs("Bet", player)  # player adds bet
-        # plr.addBet(50)
+        # player.addBet(50)
 
     for pos in 2 * tableList:
         pos.dealt.append(shoe.draw())  # deal cards
@@ -149,8 +178,10 @@ def playRound(tableList: list, playerList: list) -> None:
     for pos in tableList:
         pos.hands.append(Hand(pos.dealt, pos))  # evaluate hands
 
+    # # test for bugs ===================================================
+    testHand = specCards()
     # dealer.hands[0] = Hand(testHand, dealer)
-    # player.hands[0] = Hand(testHand, player)
+    player.hands[0] = Hand(testHand, player)
 
     dlrInfo = [dealer.hands[0].info[0], ("?", "?")]
     print(f"\n{'='*50}\nDealer's Hand:\n {dlrInfo}\n")
@@ -166,16 +197,23 @@ def playRound(tableList: list, playerList: list) -> None:
     if "A" in dealer.hands[0].cards[0].info:
         for currPlayer in playerList:
             inputArgs("Insurance", currPlayer)
+    else:
+        pass
 
     if dNat == False:
         # Player(s) decisions
         for currPlayer in playerList:
-            playerTurn(currPlayer, dlrInfo)
-        bustList = [
-            hand.bust for hand in plr.hands for plr in playerList]
+            playerTurn(currPlayer, dlrInfo, **kwargs)
+
+
+        bustList = [hand.bust for hand in currPlayer.hands
+                    for currPlayer in playerList]
+        natList = [hand.naturals for hand in currPlayer.hands
+                   for currPlayer in playerList]
         # Dealer's Turn
-        if False in bustList:
-            dealerTurn(dealer)
+
+        if False in bustList and False in natList:
+            dealerTurn(dealer, shoe=shoe)
         compareSetup(playerList, dealer)
     elif dNat == True:
         compareSetup(playerList, dealer)
@@ -183,6 +221,7 @@ def playRound(tableList: list, playerList: list) -> None:
         pass
 
     # Prepare for next Round
+    print(f"\n{'='*50}\nRound Over:\n")
     for currPlayer in tableList:
         currPlayer.reset()
         if currPlayer.seat != 0:
@@ -192,14 +231,15 @@ def playRound(tableList: list, playerList: list) -> None:
             pass
 
 
-if __name__ == "__main__":
+def main() -> None:
     dealer = Dealer()
     player = Player(1000, 1)
     shoe = deck(6)
     tableList = [player, dealer]
+    playerList = [player]
 
     while player.done == False:
-        playRound(tableList, tableList.copy()[:-1])
+        playRound(tableList, playerList, shoe=shoe, dealer=dealer)
         inputArgs("Continue", player)
         # Reshuffle deck
         if len(shoe.cards) < shoe.cut:
@@ -211,3 +251,7 @@ if __name__ == "__main__":
             player.done = True
         else:
             pass
+
+
+if __name__ == "__main__":
+    main()

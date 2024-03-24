@@ -1,3 +1,5 @@
+#!/home/geyer/anaconda3/bin/python3.11
+
 class card:
     def __init__(self, card: tuple) -> None:
         """Reference card suit or val at any point"""

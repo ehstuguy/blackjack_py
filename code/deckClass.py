@@ -1,3 +1,5 @@
+#!/home/geyer/anaconda3/bin/python3.11
+
 import random
 import numpy as np
 

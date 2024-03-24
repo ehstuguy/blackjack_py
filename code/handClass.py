@@ -1,3 +1,5 @@
+#!/home/geyer/anaconda3/bin/python3.11
+
 valDict = {2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9,
     10: 10, "J": 10, "Q": 10, "K": 10, "A": 11}
 altDict = {2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9,
@@ -17,6 +19,7 @@ class Hand:
         self.bust = False
         self.stand = False
         self.naturals = None
+        self.paid = False
         self.push = None
         self.checkHand(nCard, player)
 
@@ -61,14 +64,22 @@ class Hand:
 
 
     def payOut(self, player: object, handBet: int) -> None:
-        if self.naturals == True:
+        if self.naturals == True and self.paid == False:
             player.bankroll += handBet * 1.5
+            self.paid = True
         elif self.push == True:
             player.bankroll += 0
         elif self.win == True and self.naturals == False:
             player.bankroll += handBet
         elif self.win == False:
             player.bankroll -= handBet
+        else:
+            pass
+
+        print(f"\n|Player {player.seat}| Hand:\n {self.info}"
+              f"\n value = {self.sum}"
+              f"\n win: {self.win}, push: {self.push}"
+              f"\n bankroll: {player.bankroll}")
 
 
 if __name__ == "__main__":

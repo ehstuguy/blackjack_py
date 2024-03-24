@@ -1,3 +1,5 @@
+#!/home/geyer/anaconda3/bin/python3.11
+
 class Dealer:
     def __init__(self) -> None:
         self.seat = 0

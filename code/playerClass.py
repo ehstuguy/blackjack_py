@@ -1,3 +1,5 @@
+#!/home/geyer/anaconda3/bin/python3.11
+
 class Player:
     def __init__(self, bankroll: int, playerSeat: int) -> None:
         """Starting dollar amount of money and player seat"""
