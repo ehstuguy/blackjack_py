@@ -57,7 +57,7 @@ def inputArgs(argType: str, currPlayer: object, **kwargs) -> None:
 
 
 def specCards() -> list:
-    return [card(('♣', "A")), card(('♣', 10))]  # test hand
+    return [card(('♣', 3)), card(('♣', 10))]  # test hand
 
 
 def regPlay(currPlayer: object, hand: object, **kwargs) -> None:
@@ -117,9 +117,19 @@ def playerHand(currPlayer: object, hand: object, **kwargs) -> None:
                             if hand.options[o]==True]
             hand = regPlay(currPlayer, hand, **kwargs)
 
-    # print(f"\nPlayer {currPlayer.seat} Hand "
-    #       f"[{currPlayer.idxNum} of {len(currPlayer.hands)}]:"
-    #       f"\n {hand.info}\n value: {hand.sum}\n")
+    if hand.bust == True:
+        print(f"\nPlayer {currPlayer.seat} Hand "
+            f"[{currPlayer.idxNum} of {len(currPlayer.hands)}]:"
+            f"\n {hand.info}"
+            f"\n value: {hand.sum}"
+            f"\n bust: {hand.bust}\n")
+    elif hand.sum == 21:
+        print(f"\nPlayer {currPlayer.seat} Hand "
+            f"[{currPlayer.idxNum} of {len(currPlayer.hands)}]:"
+            f"\n {hand.info}"
+            f"\n value: {hand.sum}")
+    else:
+        pass
 
 
 def playerTurn(currPlayer: object, dlrInfo: list, **kwargs) -> None:
@@ -191,9 +201,9 @@ def playRound(tableList: list, playerList: list, **kwargs) -> None:
         pos.hands.append(Hand(pos.dealt, pos))  # evaluate hands
 
     # # test for bugs ===================================================
-    # testHand = specCards()
-    # dealer.hands[0] = Hand(testHand, dealer)
-    # player.hands[0] = Hand(testHand, player)
+    testHand = specCards()
+    dealer.hands[0] = Hand(testHand, dealer)
+    player.hands[0] = Hand(testHand, player)
 
     dlrInfo = [dealer.hands[0].info[0], ("?", "?")]
     print(f"\n{'='*50}\nDealer's Hand:\n {dlrInfo}\n")

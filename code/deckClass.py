@@ -20,8 +20,7 @@ class deck:
         self.cards = [card(rngCard) for rngCard in shuffledCards]
 
     def cutDeck(self) -> None:
-        self.cut = random.randint(1, random.randint(243, 276))
-
+        self.cut = random.randint(1, len(self.cards) - 1)
     def draw(self) -> None:
         return self.cards.pop(0)
 
