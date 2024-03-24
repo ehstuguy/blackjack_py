@@ -103,7 +103,6 @@ def playerHand(currPlayer: object, hand: object, **kwargs) -> None:
             hand.optList = [o for o in hand.options
                             if hand.options[o]==True]
             hand = regPlay(currPlayer, hand, **kwargs)
-    # currPlayer.hands.pop(currPlayer.idxNum - 1)
 
     # print(f"\nPlayer {currPlayer.seat} Hand "
     #       f"[{currPlayer.idxNum} of {len(currPlayer.hands)}]:"
@@ -179,9 +178,9 @@ def playRound(tableList: list, playerList: list, **kwargs) -> None:
         pos.hands.append(Hand(pos.dealt, pos))  # evaluate hands
 
     # # test for bugs ===================================================
-    testHand = specCards()
+    # testHand = specCards()
     # dealer.hands[0] = Hand(testHand, dealer)
-    player.hands[0] = Hand(testHand, player)
+    # player.hands[0] = Hand(testHand, player)
 
     dlrInfo = [dealer.hands[0].info[0], ("?", "?")]
     print(f"\n{'='*50}\nDealer's Hand:\n {dlrInfo}\n")
