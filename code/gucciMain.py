@@ -168,8 +168,11 @@ def playRound(tableList: list, playerList: list) -> None:
         # Player(s) decisions
         for currPlayer in playerList:
             playerTurn(currPlayer, dlrInfo)
+        bustList = [
+            hand.bust for hand in plr.hands for plr in playerList]
         # Dealer's Turn
-        dealerTurn(dealer)
+        if False in bustList:
+            dealerTurn(dealer)
         compareSetup(playerList, dealer)
     elif dNat == True:
         compareSetup(playerList, dealer)
