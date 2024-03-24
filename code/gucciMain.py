@@ -6,6 +6,14 @@ from deckClass import deck
 from cardClass import card
 from handClass import Hand
 
+def checkBetInput(betInput: int) -> int:
+    try:
+        betInput = int(betInput)
+        return betInput
+    except ValueError:
+        print("\nPlease enter a valid number")
+        return checkBetInput(input(">>> "))
+
 
 def inputArgs(argType: str, currPlayer: object, **kwargs) -> None:
     if argType == "Continue":
@@ -32,13 +40,18 @@ def inputArgs(argType: str, currPlayer: object, **kwargs) -> None:
         betMsg = (f"\n\nPlayer {currPlayer.seat}'s "
                   f"current bankroll: {currPlayer.bankroll}"
                   "\nPlace your bet\n>>> ")
-        betInput = int(input(betMsg))
+        betInput = checkBetInput(input(betMsg))
         while betInput > currPlayer.bankroll:
-            newBetMsg = (f"\n{betInput} is more than you have.\n"
-                         "Please enter an amount lower than "
-                         f"{currPlayer.bankroll} for your bet\n>>> ")
-            betInput = int(input(newBetMsg))
+            print("\nYour current bankroll is", currPlayer.bankroll)
+            betInput = checkBetInput(input("Try again\n>>> "))
         currPlayer.addBet(betInput)
+    elif argType == "Add Funds":
+        addFunds = str(input("\nAdd funds? [Y/n]\n>>> ")).lower()
+        if "y" in addFunds:
+            addMsg = "How much would you like to add?\n>>> "
+            addInput = checkBetInput(input(addMsg))
+            currPlayer.bankroll += addInput
+            print(f"New bankroll: {currPlayer.bankroll}")
     else:
         pass
 
@@ -247,7 +260,11 @@ def main() -> None:
             shoe = deck(6)
         elif player.bankroll == 0:
             print("You're out of money, an ATM is down the hall.")
-            player.done = True
+            inputArgs("Add Funds", player)
+            if player.bankroll == 0:
+                player.done = True
+            else:
+                pass
         else:
             pass
 
