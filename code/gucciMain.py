@@ -1,7 +1,7 @@
 from dealerClass import Dealer
 from playerClass import Player
 from deckClass import deck
-from cardClass import card
+# from cardClass import card
 from handClass import Hand
 
 
@@ -114,7 +114,8 @@ def compareSetup(playerList, dealer) -> None:
             compareHands(currPlayer, hand, dealer.hands[0])
             if currPlayer.insurance == True and dNat == True:
                 currPlayer.bankroll += currPlayer.bet
-
+            else:
+                pass
 
 def compareHands(plr: object, pHand: object, dHand: object) -> None:
     # # compare to dealer here
@@ -130,15 +131,17 @@ def compareHands(plr: object, pHand: object, dHand: object) -> None:
         pHand.win = False
     elif pHand.sum == dHand.sum:
         pHand.push = True
-    pHand.payOut(plr)
+    else:
+        pass
+    pHand.payOut(plr, pHand.bet)
 
 
 def playRound(tableList: list, playerList: list) -> None:
     # testHand = [card(('♣', 10)), card(('♣', 10))]
 
     for plr in playerList:
-        # inputArgs("Bet", player)  # player adds bet
-        plr.addBet(50)
+        inputArgs("Bet", player)  # player adds bet
+        # plr.addBet(50)
 
     for pos in 2 * tableList:
         pos.dealt.append(shoe.draw())  # deal cards
@@ -176,6 +179,8 @@ def playRound(tableList: list, playerList: list) -> None:
         compareSetup(playerList, dealer)
     elif dNat == True:
         compareSetup(playerList, dealer)
+    else:
+        pass
 
     # Prepare for next Round
     for currPlayer in tableList:
@@ -183,6 +188,8 @@ def playRound(tableList: list, playerList: list) -> None:
         if currPlayer.seat != 0:
             print(f"Player {currPlayer.seat}'s bankroll:",
                   currPlayer.bankroll)
+        else:
+            pass
 
 
 if __name__ == "__main__":
@@ -199,3 +206,8 @@ if __name__ == "__main__":
             # could move this into the dealing portion of the game
             print("Cut card found, reshuffling")
             shoe = deck(6)
+        elif player.bankroll == 0:
+            print("You're out of money, an ATM is down the hall.")
+            player.done = True
+        else:
+            pass

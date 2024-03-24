@@ -60,15 +60,15 @@ class Hand:
                 self.stand = True
 
 
-    def payOut(self, player: object) -> None:
+    def payOut(self, player: object, handBet: int) -> None:
         if self.naturals == True:
-            player.bankroll += player.bet * 1.5
+            player.bankroll += handBet * 1.5
         elif self.push == True:
             player.bankroll += 0
         elif self.win == True and self.naturals == False:
-            player.bankroll += player.bet
+            player.bankroll += handBet
         elif self.win == False:
-            player.bankroll -= player.bet
+            player.bankroll -= handBet
 
 
 if __name__ == "__main__":

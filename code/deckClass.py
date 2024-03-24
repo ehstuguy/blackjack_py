@@ -25,6 +25,7 @@ class deck:
 
 
 if __name__ == "__main__":
+    pass
     shoe = deck(6)
     print(shoe.cards[0].info)
     pass
