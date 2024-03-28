@@ -6,6 +6,7 @@ class Player:
         self.seat = playerSeat
         self.bankroll = bankroll
         self.bet = None
+        self.trueBet = None
         self.insurance = None
         self.dealt = []
         self.hands = []
@@ -13,6 +14,7 @@ class Player:
 
     def addBet(self, amount: int) -> None:
         self.bet = amount
+        self.trueBet = amount
 
     def reset(self) -> None:
         self.bet = None

@@ -11,7 +11,7 @@ def checkBetInput(betInput: int) -> int:
         betInput = int(betInput)
         return betInput
     except ValueError:
-        print("\nPlease enter a valid number")
+        print("\nPlease enter a valid integer")
         return checkBetInput(input(">>> "))
 
 
@@ -23,8 +23,9 @@ def inputArgs(argType: str, currPlayer: object, **kwargs) -> None:
         else:
             pass
     elif argType == "Options":
-        options = [i.lower() for i in kwargs["hand"].optList]
-        print(f"\n{kwargs['hand'].optList}")
+        currHand = kwargs["handPast"]
+        options = [i.lower() for i in currHand.optList]
+        print(f"\n{currHand.optList}")
         optionStr = "Please make a choice as shown above \n>>> "
         playerInput = str(input(optionStr)).lower()
         while playerInput not in options:
@@ -57,13 +58,15 @@ def inputArgs(argType: str, currPlayer: object, **kwargs) -> None:
 
 
 def specCards() -> list:
-    return [card(('♣', 3)), card(('♣', 10))]  # test hand
+    return [card(('♣', 10)), card(('♣', 10))]  # test hand
 
 
 def regPlay(currPlayer: object, hand: object, **kwargs) -> None:
     dealer = kwargs["dealer"]
     shoe = kwargs["shoe"]
-    hand.decision = inputArgs("Options", currPlayer, hand=hand)
+    hand.eval(currPlayer)
+    hand.optList = [o for o in hand.options if hand.options[o]==True]
+    hand.decision = inputArgs("Options", currPlayer, handPast=hand)
     if hand.decision == "hit":
         hand.checkHand([shoe.draw()], currPlayer)
         return hand
@@ -76,7 +79,7 @@ def regPlay(currPlayer: object, hand: object, **kwargs) -> None:
         hand.stand = True
         return hand
     elif hand.decision == "split":
-        ogHandIdx = hand.index
+        ogHandIdx = currPlayer.idxNum
         for i, crd in enumerate(hand.cards):
             # splitHand = Hand([crd, card(('♦', 10))], currPlayer)
             splitHand = Hand([crd, shoe.draw()], currPlayer)
@@ -90,9 +93,11 @@ def regPlay(currPlayer: object, hand: object, **kwargs) -> None:
 
 
 def playerHand(currPlayer: object, hand: object, **kwargs) -> None:
+
     dealer = kwargs["dealer"]
 
     while hand.stand != True:
+        currPlayer.trueBet = sum([h.bet for h in currPlayer.hands])
         pNatural = hand.naturals
         dNatural = dealer.hands[0].naturals
         print(f"\nDealer's Hand\n {currPlayer.dlrInfo}\n"
@@ -102,6 +107,7 @@ def playerHand(currPlayer: object, hand: object, **kwargs) -> None:
         if pNatural == True and dNatural == True:
             print("Draw")
             hand.stand = True
+            hand.bet = hand.bet * 1.5
         elif pNatural == True:
             print("\nPlayer wins with naturals", hand.sum)
             hand.win = True
@@ -113,8 +119,6 @@ def playerHand(currPlayer: object, hand: object, **kwargs) -> None:
             hand.stand = True
         else:
             print("\nNormal Play")
-            hand.optList = [o for o in hand.options
-                            if hand.options[o]==True]
             hand = regPlay(currPlayer, hand, **kwargs)
 
     if hand.bust == True:
@@ -184,8 +188,6 @@ def compareSetup(playerList: list, dealer: object, **kwargs) -> None:
                 pass
 
 
-
-
 def playRound(tableList: list, playerList: list, **kwargs) -> None:
     dealer = kwargs["dealer"]
     shoe = kwargs["shoe"]
@@ -206,13 +208,14 @@ def playRound(tableList: list, playerList: list, **kwargs) -> None:
     # player.hands[0] = Hand(testHand, player)
 
     dlrInfo = [dealer.hands[0].info[0], ("?", "?")]
-    print(f"\n{'='*50}\nDealer's Hand:\n {dlrInfo}\n")
-    for currPlayer in playerList:
-        for idx, hand in enumerate(currPlayer.hands):
-            hand.index = idx + 1
-            print(f"\nPlayer {currPlayer.seat} Hand "
-                  f"[{hand.index} of {len(currPlayer.hands)}]:"
-                  f"\n {hand.info}\n value: {hand.sum}\n{'='*50}\n")
+
+    # print(f"\n{'='*50}\nDealer's Hand:\n {dlrInfo}\n")
+    # for currPlayer in playerList:
+    #     for idx, hand in enumerate(currPlayer.hands):
+    #         hand.index = idx + 1
+    #         print(f"\nPlayer {currPlayer.seat} Hand "
+    #               f"[{hand.index} of {len(currPlayer.hands)}]:"
+    #               f"\n {hand.info}\n value: {hand.sum}\n{'='*50}\n")
 
     # Insurance for dealer face-up aces
     dNat = dealer.hands[0].naturals
@@ -226,14 +229,12 @@ def playRound(tableList: list, playerList: list, **kwargs) -> None:
         # Player(s) decisions
         for currPlayer in playerList:
             playerTurn(currPlayer, dlrInfo, **kwargs)
-
-
+        # Check for busts and naturals
         bustList = [hand.bust for hand in currPlayer.hands
                     for currPlayer in playerList]
         natList = [hand.naturals for hand in currPlayer.hands
                    for currPlayer in playerList]
         # Dealer's Turn
-
         if False in bustList and False in natList:
             dealerTurn(dealer, shoe=shoe)
         compareSetup(playerList, dealer)
@@ -255,20 +256,27 @@ def playRound(tableList: list, playerList: list, **kwargs) -> None:
 
 def main() -> None:
     dealer = Dealer()
-    player = Player(1000, 1)
+    player = Player(300, 1)
     shoe = deck(6)
     tableList = [player, dealer]
     playerList = [player]
 
+    # Game Loop
     while player.done == False:
-        playRound(tableList, playerList, shoe=shoe, dealer=dealer)
-        inputArgs("Continue", player)
         # Reshuffle deck
         if len(shoe.cards) < shoe.cut:
             # could move this into the dealing portion of the game
             print("Cut card found, reshuffling")
             shoe = deck(6)
-        elif player.bankroll == 0:
+        else:
+            pass
+
+        # Play a round
+        playRound(tableList, playerList, shoe=shoe, dealer=dealer)
+        inputArgs("Continue", player)
+
+        # Check for player bankruptcy
+        if player.bankroll == 0:
             print("You're out of money, an ATM is down the hall.")
             inputArgs("Add Funds", player)
             if player.bankroll == 0:

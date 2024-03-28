@@ -49,23 +49,31 @@ class Hand:
             if self.sum == 21:
                 self.naturals = True
             elif player.seat != 0:
+                gdBet = player.bankroll >= player.trueBet + player.bet
+                sameCards = self.info[0] == self.info[1]
                 self.options["Split"] = False
                 self.options["Double"] = False
-                if self.info[0][1] == self.info[1][1]:
+                if sameCards == True and gdBet == True:
                     self.options["Split"] = True
-                if player.bankroll-player.bet >= player.bet:
+                else:
+                    pass
+                if gdBet == True:
                     self.options["Double"] = True
+                else:
+                    pass
         else:
             if self.sum == 21:
                 self.stand = True
             elif self.sum > 21:
                 self.bust = True
                 self.stand = True
+            else:
+                pass
 
 
     def payOut(self, player: object, handBet: int) -> None:
         if self.naturals == True and self.paid == False:
-            player.bankroll += handBet * 1.5
+            player.bankroll += handBet
             self.paid = True
         elif self.push == True:
             player.bankroll += 0
