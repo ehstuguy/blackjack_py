@@ -73,14 +73,14 @@ class Hand:
 
     def payOut(self, player: object, handBet: int) -> None:
         if self.naturals == True and self.paid == False:
-            player.bankroll += handBet
+            player.bankroll += int(handBet)
             self.paid = True
         elif self.push == True:
             player.bankroll += 0
         elif self.win == True and self.naturals == False:
-            player.bankroll += handBet
+            player.bankroll += int(handBet)
         elif self.win == False:
-            player.bankroll -= handBet
+            player.bankroll -= int(handBet)
         else:
             pass
 
